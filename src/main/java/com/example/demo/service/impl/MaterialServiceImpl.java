@@ -17,7 +17,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
-@Transactional(rollbackFor = Exception.class)
+
 @Service
 @Slf4j
 public class MaterialServiceImpl extends ServiceImpl<MaterialChartsMapper, TMaterialCharts> implements IMaterialChartsService {
@@ -25,8 +25,10 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialChartsMapper, TMate
     @Resource
     MaterialChartsMapper materialChartsMapper;
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public ResultVO saveMaterialCharts(MaterialData materialData) {
+        log.info("物料数据: "+materialData);
         //0、还得排除它传空给我的情况
         if(null == materialData){
             return new ResultVO(1,"物料信息为空");
