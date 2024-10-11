@@ -3,11 +3,10 @@ package com.example.demo.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.demo.dto.Charts;
-import com.example.demo.dto.MaterialData;
-import com.example.demo.dto.ResultVO;
+import com.example.demo.dto.*;
 import com.example.demo.entity.TMaterialCharts;
 import com.example.demo.mapper.MaterialChartsMapper;
+import com.example.demo.service.IBomService;
 import com.example.demo.service.IMaterialChartsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -25,16 +26,19 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialChartsMapper, TMate
     @Resource
     MaterialChartsMapper materialChartsMapper;
 
+    @Resource
+    IBomService iBomService;
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public ResultVO saveMaterialCharts(MaterialData materialData) {
         log.info("物料数据: "+materialData);
         //0、还得排除它传空给我的情况
         if(null == materialData){
-            return new ResultVO(1,"物料信息为空");
+            return new ResultVO(1,"物料信息为空",null);
         }
         if(null == materialData.getCharts()){
-            return new ResultVO(1,"物料特性为空");
+            return new ResultVO(1,"物料特性为空",null);
         }
 
         //1、先看一下有没有这个物料编码，有的话就直接更新，没有就新增
@@ -60,7 +64,105 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialChartsMapper, TMate
         }else{
             this.saveBatch(tMaterialCharts);
         }
-        return new ResultVO(0,"物料信息保存成功");
+        return new ResultVO(0,"物料信息保存成功",null);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public MaterialChartsDTO getMaterialCode(GainMaterialCodeDTO gainMaterialCodeDTO) {
+        // 查询第一个条件的matnr
+        LambdaQueryWrapper<TMaterialCharts> queryWrapper1 = new LambdaQueryWrapper<>();
+        queryWrapper1.select(TMaterialCharts::getMatnr)
+                .eq(TMaterialCharts::getAtnam, "S34")//固定效率标识
+                .eq(TMaterialCharts::getAtwrt, gainMaterialCodeDTO.getEta());
+        List<String> matnrs1 = this.list(queryWrapper1)
+                .stream()
+                .map(TMaterialCharts::getMatnr)
+                .collect(Collectors.toList());
+
+        // 查询第二个条件的matnr
+        LambdaQueryWrapper<TMaterialCharts> queryWrapper2 = new LambdaQueryWrapper<>();
+        queryWrapper2.select(TMaterialCharts::getMatnr)
+                .eq(TMaterialCharts::getAtnam, "S35")//固定等级标识
+                .eq(TMaterialCharts::getAtwrt, gainMaterialCodeDTO.getGrade());
+        List<String> matnrs2 = this.list(queryWrapper2)
+                .stream()
+                .map(TMaterialCharts::getMatnr)
+                .collect(Collectors.toList());
+        // 求交集
+        Set<String> commonMatnr = matnrs1.stream()
+                .filter(matnrs2::contains)
+                .collect(Collectors.toSet());
+
+        //所有符合效率和等级的物料编码,经过和bom里面的物料编码，工单号匹配后只剩下了唯一一个
+        List<String> list = commonMatnr.stream().collect(Collectors.toList());
+        String materialCode = iBomService.getTrueMaterialCode(list, gainMaterialCodeDTO.getWorkOrder());
+        LambdaQueryWrapper<TMaterialCharts> queryWrapper3 = new LambdaQueryWrapper<>();
+        queryWrapper3.eq(TMaterialCharts::getMatnr, materialCode);
+        List<TMaterialCharts> tMaterialChartsList = materialChartsMapper.selectList(queryWrapper3);
+        MaterialChartsDTO materialChartsDTO = new MaterialChartsDTO();
+        materialChartsDTO.setMaterialCode(materialCode);
+        for(TMaterialCharts tMaterialCharts : tMaterialChartsList){
+            switch (tMaterialCharts.getAtnam()){
+                case "S10":
+                    materialChartsDTO.setCustomRequire(tMaterialCharts.getAtwtb());
+                    break;
+                case "S11A":
+                    materialChartsDTO.setElePerformanceNew(tMaterialCharts.getAtwtb());
+                    break;
+                case "S11":
+                    materialChartsDTO.setElePerformance(tMaterialCharts.getAtwtb());
+                    break;
+                case "S31":
+                    materialChartsDTO.setEleLength(tMaterialCharts.getAtwtb());
+                    break;
+                case "S33":
+                    materialChartsDTO.setEleLine(tMaterialCharts.getAtwtb());
+                    break;
+                case "S34":
+                    materialChartsDTO.setEleRate(tMaterialCharts.getAtwtb());
+                    break;
+                case "S35":
+                    materialChartsDTO.setEleLevel(tMaterialCharts.getAtwtb());
+                    break;
+                case "S36":
+                    materialChartsDTO.setEleType(tMaterialCharts.getAtwtb());
+                    break;
+                case "S38":
+                    materialChartsDTO.setEleManufacturer(tMaterialCharts.getAtwtb());
+                    break;
+                case "S3A":
+                    materialChartsDTO.setType1(tMaterialCharts.getAtwtb());
+                    break;
+                case "S3C":
+                    materialChartsDTO.setTraceInfo(tMaterialCharts.getAtwtb());
+                    break;
+                case "S3D":
+                    materialChartsDTO.setTraceCode(tMaterialCharts.getAtwtb());
+                    break;
+                case "S3E":
+                    materialChartsDTO.setTraceType(tMaterialCharts.getAtwtb());
+                    break;
+                case "S296":
+                    materialChartsDTO.setProductType(tMaterialCharts.getAtwtb());
+                    break;
+                case "S297":
+                    materialChartsDTO.setProductType2(tMaterialCharts.getAtwtb());
+                    break;
+                case "S298":
+                    materialChartsDTO.setElePlace(tMaterialCharts.getAtwtb());
+                    break;
+                case "S299":
+                    materialChartsDTO.setEleBrand(tMaterialCharts.getAtwtb());
+                    break;
+                case "S420":
+                    materialChartsDTO.setEleSide(tMaterialCharts.getAtwtb());
+                    break;
+                default:
+                    break;
+            }
+        }
+        return materialChartsDTO;
     }
 
     private List<TMaterialCharts> convertToMaterial(MaterialData materialData) {

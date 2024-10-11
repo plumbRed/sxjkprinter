@@ -17,4 +17,8 @@ public interface IBomService {
     ResultVO saveBomData(List<BomDTO> bomDTOs);
 
 
+    /**
+     * 将物料集合和工单号去bom里面查找符合条件的物料
+     */
+    String getTrueMaterialCode(List<String> materialCodeList,String workOrder);
 }

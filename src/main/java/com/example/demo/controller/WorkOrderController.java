@@ -23,7 +23,7 @@ public class WorkOrderController {
 
 
     @Operation(summary = "保存工单信息", description = "更新相同物料编码，新增不同的物料信息")
-    @PostMapping("/api/workOrder")
+    @PostMapping("/workOrder/receiveWorkOrder")
     public ResultVO receiveWorkOrder(@RequestBody WorkOrderTotal workOrderTotal) {
         return iWorkOrderService.saveWorkOrder(workOrderTotal);
     }
@@ -32,9 +32,8 @@ public class WorkOrderController {
      * 获取工单号集合
      */
     @Operation(summary = "获取所有工单列", description = "获取所有工单列")
-    @PostMapping("/api/getWorkOrderList")
+    @PostMapping("/workOrder/getWorkOrderList")
     public List<String> getWorkOrderList() {
-
-        return null;
+        return iWorkOrderService.getWorkOrderList();
     }
 }

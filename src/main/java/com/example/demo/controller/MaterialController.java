@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.GainMaterialCodeDTO;
+import com.example.demo.dto.MaterialChartsDTO;
 import com.example.demo.dto.MaterialData;
 import com.example.demo.dto.ResultVO;
 import com.example.demo.service.IMaterialChartsService;
@@ -18,11 +20,22 @@ import javax.annotation.Resource;
 public class MaterialController {
 
     @Resource
-    private IMaterialChartsService IMaterialChartsService;
+    private IMaterialChartsService iMaterialChartsService;
 
     @Operation(summary = "保存物料信息", description = "更新相同物料编码，新增不同的物料信息")
-    @PostMapping("/api/material")
-    public ResultVO receiveMaterialData(@RequestBody MaterialData materialData) {
-        return IMaterialChartsService.saveMaterialCharts(materialData);
+    @PostMapping("/material/saveMaterialData")
+    public ResultVO saveMaterialData(@RequestBody MaterialData materialData) {
+        return iMaterialChartsService.saveMaterialCharts(materialData);
     }
+
+    /**
+     * 通过效率，等级，工单号获取物料编码信息
+     */
+    @Operation(summary = "获取物料信息", description = "通过等级、效率、工单号获取物料编码")
+    @PostMapping("/material/getMaterialInfo")
+    public MaterialChartsDTO getMaterialInfo(@RequestBody GainMaterialCodeDTO gainMaterialCode) {
+        return iMaterialChartsService.getMaterialCode(gainMaterialCode);
+    }
+
+
 }
