@@ -18,5 +18,5 @@ public interface IMaterialChartsService {
     /**
      * 通过工单号、效率、等级来查询数据
      */
-    MaterialChartsDTO getMaterialCode(GainMaterialCodeDTO gainMaterialCodeDTO);
+    ResultVO<MaterialChartsDTO> getMaterialCode(GainMaterialCodeDTO gainMaterialCodeDTO);
 }

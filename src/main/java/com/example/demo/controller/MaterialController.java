@@ -33,7 +33,7 @@ public class MaterialController {
      */
     @Operation(summary = "获取物料信息", description = "通过等级、效率、工单号获取物料编码")
     @PostMapping("/material/getMaterialInfo")
-    public MaterialChartsDTO getMaterialInfo(@RequestBody GainMaterialCodeDTO gainMaterialCode) {
+    public ResultVO<MaterialChartsDTO> getMaterialInfo(@RequestBody GainMaterialCodeDTO gainMaterialCode) {
         return iMaterialChartsService.getMaterialCode(gainMaterialCode);
     }
 

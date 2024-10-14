@@ -32,13 +32,13 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialChartsMapper, TMate
     @Transactional(rollbackFor = Exception.class)
     @Override
     public ResultVO saveMaterialCharts(MaterialData materialData) {
-        log.info("物料数据: "+materialData);
+        log.info("物料数据: " + materialData);
         //0、还得排除它传空给我的情况
-        if(null == materialData){
-            return new ResultVO(1,"物料信息为空",null);
+        if (null == materialData) {
+            return new ResultVO(1, "物料信息为空", null);
         }
-        if(null == materialData.getCharts()){
-            return new ResultVO(1,"物料特性为空",null);
+        if (null == materialData.getCharts()) {
+            return new ResultVO(1, "物料特性为空", null);
         }
 
         //1、先看一下有没有这个物料编码，有的话就直接更新，没有就新增
@@ -48,7 +48,7 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialChartsMapper, TMate
         //2-1、我们需要先将要保存的数据准备好
         List<TMaterialCharts> tMaterialCharts = convertToMaterial(materialData);
         //2-2、大于零走更新逻辑，否则走新增逻辑
-        if(num > 0){
+        if (num > 0) {
             for (TMaterialCharts materialCharts : tMaterialCharts) {
                 LambdaUpdateWrapper<TMaterialCharts> updateWrapper = new LambdaUpdateWrapper<>();
                 updateWrapper.eq(TMaterialCharts::getMatnr, materialCharts.getMatnr())  // 根据物料编码更新
@@ -61,15 +61,15 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialChartsMapper, TMate
                 // 执行更新操作
                 this.update(updateWrapper);
             }
-        }else{
+        } else {
             this.saveBatch(tMaterialCharts);
         }
-        return new ResultVO(0,"物料信息保存成功",null);
+        return new ResultVO(0, "物料信息保存成功", null);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public MaterialChartsDTO getMaterialCode(GainMaterialCodeDTO gainMaterialCodeDTO) {
+    public ResultVO<MaterialChartsDTO> getMaterialCode(GainMaterialCodeDTO gainMaterialCodeDTO) {
         // 查询第一个条件的matnr
         LambdaQueryWrapper<TMaterialCharts> queryWrapper1 = new LambdaQueryWrapper<>();
         queryWrapper1.select(TMaterialCharts::getMatnr)
@@ -96,14 +96,20 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialChartsMapper, TMate
 
         //所有符合效率和等级的物料编码,经过和bom里面的物料编码，工单号匹配后只剩下了唯一一个
         List<String> list = commonMatnr.stream().collect(Collectors.toList());
+        if (null == list || list.isEmpty()) {
+            return new ResultVO(1, "查询无此物料信息", null);
+        }
         String materialCode = iBomService.getTrueMaterialCode(list, gainMaterialCodeDTO.getWorkOrder());
+        if (null == materialCode || "".equals(materialCode)) {
+            return new ResultVO(1, "查询没有符合该工单号的物料信息", null);
+        }
         LambdaQueryWrapper<TMaterialCharts> queryWrapper3 = new LambdaQueryWrapper<>();
         queryWrapper3.eq(TMaterialCharts::getMatnr, materialCode);
         List<TMaterialCharts> tMaterialChartsList = materialChartsMapper.selectList(queryWrapper3);
         MaterialChartsDTO materialChartsDTO = new MaterialChartsDTO();
         materialChartsDTO.setMaterialCode(materialCode);
-        for(TMaterialCharts tMaterialCharts : tMaterialChartsList){
-            switch (tMaterialCharts.getAtnam()){
+        for (TMaterialCharts tMaterialCharts : tMaterialChartsList) {
+            switch (tMaterialCharts.getAtnam()) {
                 case "S10":
                     materialChartsDTO.setCustomRequire(tMaterialCharts.getAtwtb());
                     break;
@@ -162,13 +168,13 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialChartsMapper, TMate
                     break;
             }
         }
-        return materialChartsDTO;
+        return new ResultVO(0, "物料信息获取成功", materialChartsDTO);
     }
 
     private List<TMaterialCharts> convertToMaterial(MaterialData materialData) {
         List<Charts> list = materialData.getCharts();
         List<TMaterialCharts> tMaterialChartsList = new ArrayList<>();
-        for(Charts charts : list){
+        for (Charts charts : list) {
             TMaterialCharts tMaterialCharts = new TMaterialCharts();
             //物料编码
             tMaterialCharts.setMatnr(materialData.getMatnr());
