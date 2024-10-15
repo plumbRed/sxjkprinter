@@ -1,9 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.GainMaterialCodeDTO;
-import com.example.demo.dto.MaterialChartsDTO;
-import com.example.demo.dto.MaterialData;
-import com.example.demo.dto.ResultVO;
+import com.example.demo.dto.*;
 import com.example.demo.service.IMaterialChartsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,8 +21,8 @@ public class MaterialController {
 
     @Operation(summary = "保存物料信息", description = "更新相同物料编码，新增不同的物料信息")
     @PostMapping("/material/saveMaterialData")
-    public ResultVO saveMaterialData(@RequestBody MaterialData materialData) {
-        return iMaterialChartsService.saveMaterialCharts(materialData);
+    public ResultVO saveMaterialData(@RequestBody MaterialTotal materialTotal) {
+        return iMaterialChartsService.saveMaterialCharts(materialTotal);
     }
 
     /**

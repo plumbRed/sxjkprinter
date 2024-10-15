@@ -31,38 +31,46 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialChartsMapper, TMate
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public ResultVO saveMaterialCharts(MaterialData materialData) {
-        log.info("物料数据: " + materialData);
-        //0、还得排除它传空给我的情况
-        if (null == materialData) {
-            return new ResultVO(1, "物料信息为空", null);
+    public ResultVO saveMaterialCharts(MaterialTotal materialTotal) {
+        List<MaterialData> list = materialTotal.getMaterialDataList();
+        if(null==list||list.isEmpty()){
+            return new ResultVO(1, "所有物料信息均为空", null);
         }
-        if (null == materialData.getCharts()) {
-            return new ResultVO(1, "物料特性为空", null);
-        }
-
-        //1、先看一下有没有这个物料编码，有的话就直接更新，没有就新增
-        LambdaQueryWrapper<TMaterialCharts> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(TMaterialCharts::getMatnr, materialData.getMatnr());
-        Long num = materialChartsMapper.selectCount(lambdaQueryWrapper);
-        //2-1、我们需要先将要保存的数据准备好
-        List<TMaterialCharts> tMaterialCharts = convertToMaterial(materialData);
-        //2-2、大于零走更新逻辑，否则走新增逻辑
-        if (num > 0) {
-            for (TMaterialCharts materialCharts : tMaterialCharts) {
-                LambdaUpdateWrapper<TMaterialCharts> updateWrapper = new LambdaUpdateWrapper<>();
-                updateWrapper.eq(TMaterialCharts::getMatnr, materialCharts.getMatnr())  // 根据物料编码更新
-                        .eq(TMaterialCharts::getAtnam, materialCharts.getAtnam())
-                        .set(TMaterialCharts::getMatkl, materialCharts.getMatkl())
-                        .set(TMaterialCharts::getWgbez, materialCharts.getWgbez())
-                        .set(TMaterialCharts::getAtbez, materialCharts.getAtbez())
-                        .set(TMaterialCharts::getAtwrt, materialCharts.getAtwrt())
-                        .set(TMaterialCharts::getAtwtb, materialCharts.getAtwtb());
-                // 执行更新操作
-                this.update(updateWrapper);
+        for(MaterialData materialData:list){
+            log.info("物料数据: " + materialData);
+            //0、还得排除它传空给我的情况
+            if (null == materialData) {
+                log.info("物料信息为空");
+                continue;
             }
-        } else {
-            this.saveBatch(tMaterialCharts);
+            if (null == materialData.getCharts()) {
+                log.info("物料特性为空");
+                continue;
+            }
+
+            //1、先看一下有没有这个物料编码，有的话就直接更新，没有就新增
+            LambdaQueryWrapper<TMaterialCharts> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.eq(TMaterialCharts::getMatnr, materialData.getMatnr());
+            Long num = materialChartsMapper.selectCount(lambdaQueryWrapper);
+            //2-1、我们需要先将要保存的数据准备好
+            List<TMaterialCharts> tMaterialCharts = convertToMaterial(materialData);
+            //2-2、大于零走更新逻辑，否则走新增逻辑
+            if (num > 0) {
+                for (TMaterialCharts materialCharts : tMaterialCharts) {
+                    LambdaUpdateWrapper<TMaterialCharts> updateWrapper = new LambdaUpdateWrapper<>();
+                    updateWrapper.eq(TMaterialCharts::getMatnr, materialCharts.getMatnr())  // 根据物料编码更新
+                            .eq(TMaterialCharts::getAtnam, materialCharts.getAtnam())
+                            .set(TMaterialCharts::getMatkl, materialCharts.getMatkl())
+                            .set(TMaterialCharts::getWgbez, materialCharts.getWgbez())
+                            .set(TMaterialCharts::getAtbez, materialCharts.getAtbez())
+                            .set(TMaterialCharts::getAtwrt, materialCharts.getAtwrt())
+                            .set(TMaterialCharts::getAtwtb, materialCharts.getAtwtb());
+                    // 执行更新操作
+                    this.update(updateWrapper);
+                }
+            } else {
+                this.saveBatch(tMaterialCharts);
+            }
         }
         return new ResultVO(0, "物料信息保存成功", null);
     }
