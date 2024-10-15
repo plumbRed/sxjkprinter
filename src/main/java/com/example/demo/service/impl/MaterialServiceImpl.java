@@ -111,58 +111,58 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialChartsMapper, TMate
         for (TMaterialCharts tMaterialCharts : tMaterialChartsList) {
             switch (tMaterialCharts.getAtnam()) {
                 case "S10":
-                    materialChartsDTO.setCustomRequire(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setCustomRequire(tMaterialCharts.getAtwrt());
                     break;
                 case "S11A":
-                    materialChartsDTO.setElePerformanceNew(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setElePerformanceNew(tMaterialCharts.getAtwrt());
                     break;
                 case "S11":
-                    materialChartsDTO.setElePerformance(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setElePerformance(tMaterialCharts.getAtwrt());
                     break;
                 case "S31":
-                    materialChartsDTO.setEleLength(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setEleLength(tMaterialCharts.getAtwrt());
                     break;
                 case "S33":
                     materialChartsDTO.setEleLine(tMaterialCharts.getAtwtb());
                     break;
                 case "S34":
-                    materialChartsDTO.setEleRate(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setEleRate(tMaterialCharts.getAtwrt());
                     break;
                 case "S35":
-                    materialChartsDTO.setEleLevel(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setEleLevel(tMaterialCharts.getAtwrt());
                     break;
                 case "S36":
-                    materialChartsDTO.setEleType(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setEleType(tMaterialCharts.getAtwrt());
                     break;
                 case "S38":
-                    materialChartsDTO.setEleManufacturer(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setEleManufacturer(tMaterialCharts.getAtwrt());
                     break;
                 case "S3A":
                     materialChartsDTO.setType1(tMaterialCharts.getAtwtb());
                     break;
                 case "S3C":
-                    materialChartsDTO.setTraceInfo(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setTraceInfo(tMaterialCharts.getAtwrt());
                     break;
                 case "S3D":
-                    materialChartsDTO.setTraceCode(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setTraceCode(tMaterialCharts.getAtwrt());
                     break;
                 case "S3E":
-                    materialChartsDTO.setTraceType(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setTraceType(tMaterialCharts.getAtwrt());
                     break;
                 case "S296":
-                    materialChartsDTO.setProductType(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setProductType(tMaterialCharts.getAtwrt());
                     break;
                 case "S297":
-                    materialChartsDTO.setProductType2(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setProductType2(tMaterialCharts.getAtwrt());
                     break;
                 case "S298":
-                    materialChartsDTO.setElePlace(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setElePlace(tMaterialCharts.getAtwrt());
                     break;
                 case "S299":
-                    materialChartsDTO.setEleBrand(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setEleBrand(tMaterialCharts.getAtwrt());
                     break;
                 case "S420":
-                    materialChartsDTO.setEleSide(tMaterialCharts.getAtwtb());
+                    materialChartsDTO.setEleSide(tMaterialCharts.getAtwrt());
                     break;
                 default:
                     break;
