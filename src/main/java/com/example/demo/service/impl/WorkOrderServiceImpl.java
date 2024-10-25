@@ -60,6 +60,7 @@ public class WorkOrderServiceImpl extends ServiceImpl<WorkOrderMapper, TWorkOrde
 
     @Override
     public List<String> getWorkOrderList() {
+        log.info("获取工单信息");
         LambdaQueryWrapper<TWorkOrder> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.select(TWorkOrder::getAufnr)
                 .groupBy(TWorkOrder::getAufnr);
